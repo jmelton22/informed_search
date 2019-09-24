@@ -13,11 +13,11 @@ def informed_search(grid, start, goal, greedy=True, manhattan=True):
     visited, path = [], []
     unexplored = PriorityQueue()
     heuristic = manhattan_distance if manhattan else euclidean_distance
+
     print('\nSearch algorithm:', end=' ')
     print('Greedy search') if greedy else print('A*')
     print('Heuristic function:', heuristic.__name__)
 
-    # TODO: Update g value with correct path_cost function
     start_node = Node(start, '', 0, heuristic(start, goal), greedy)
 
     return search(grid, start_node, goal, heuristic, unexplored, visited, greedy, path)
@@ -86,8 +86,18 @@ def expand_node(grid, node, goal, heuristic, visited, unexplored, greedy):
 
     # TODO: Update choosing when new nodes are added to the queue (remove duplicate nodes with higher priority)
     for n in node.get_neighbors(grid):
+        path_cost = node.g + step_cost(grid, n)
+        temp_node = Node(n, node, path_cost, heuristic(n, goal), greedy)
+
+        if in_unexplored(n, unexplored):
+            for duplicate in [x for x in list(unexplored.queue) if x.value == n]:
+                if duplicate.priority > temp_node.priority:
+                    # Remove duplicate nodes with higher priority
+                    # Add new node to queue
+                    pass
+
         if not in_visited(n, visited) and not in_unexplored(n, unexplored):
-            unexplored.put(Node(n, node, node.g + step_cost(grid, n), heuristic(n, goal), greedy))
+            unexplored.put(temp_node)
 
 
 def get_user_coords(grid, text):
@@ -110,7 +120,7 @@ def get_user_coords(grid, text):
 
 def main():
     grid = g.read_grid('grid.txt')
-    g.print_grid(grid)  # Print formatted grid
+    g.print_grid(grid)
     print()
 
     start = get_user_coords(grid, 'start')
@@ -119,7 +129,7 @@ def main():
     path, num_states = informed_search(grid, start, end, greedy=False)
     print('Number of nodes expanded:', num_states)
     print('Path:')
-    print('\n'.join('{} {}'.format(cost, coord) for cost, coord in path[::-1]))
+    print('\n'.join('{:02d} {}'.format(cost, coord) for cost, coord in path[::-1]))
     print()
 
     fname = 'path.txt'
