@@ -1,23 +1,25 @@
 #!/usr/bin/env python3
 
-from queue import Queue, LifoQueue
+from queue import PriorityQueue
 from node import Node
 import grid as g
+import math
 
 
-def informed_search(grid, start, goal, breadth=True):
+def informed_search(grid, start, goal, greedy=True, manhattan=True):
     """
         Handles initialization of data structures for grid search.
     """
     visited, path = [], []
+    unexplored = PriorityQueue()
+    heuristic = manhattan_distance if manhattan else euclidean_distance
 
-    # Queue for breadth-first search; Stack (LifoQueue) for depth-first search
-    unexplored = Queue() if breadth else LifoQueue()
+    start_node = Node(start, '', step_cost(grid, start), heuristic(start, goal))
 
-    return search(grid, Node(start, ''), goal, unexplored, visited, path)
+    return search(grid, start_node, goal, heuristic, unexplored, visited, greedy, path)
 
 
-def search(grid, node, goal, unexplored, visited, path):
+def search(grid, node, goal, heuristic, unexplored, visited, greedy, path):
     """
         Recursive uninformed search. Exits when goal node has been reached or
         when queue of unexplored nodes is empty.
@@ -31,13 +33,25 @@ def search(grid, node, goal, unexplored, visited, path):
         return set_path(node, path)
     else:
         # Add valid neighboring nodes to unexplored queue
-        expand_node(grid, node, visited, unexplored)
+        expand_node(grid, node, goal, heuristic, visited, unexplored, greedy)
 
         if unexplored.empty():
             return None
         else:
             # Search through next node in queue
-            return search(grid, unexplored.get(), goal, unexplored, visited, path)
+            return search(grid, unexplored.get(), goal, heuristic, unexplored, visited, greedy, path)
+
+
+def step_cost(grid, pt):
+    return grid[pt[0]][pt[1]]
+
+
+def manhattan_distance(pt1, pt2):
+    return sum([abs(x - y) for x, y in zip(pt1, pt2)])
+
+
+def euclidean_distance(pt1, pt2):
+    return math.sqrt(sum([(x - y) ** 2 for x, y in zip(pt1, pt2)]))
 
 
 def set_path(node, path):
@@ -52,7 +66,7 @@ def set_path(node, path):
         return set_path(node.parent, path)
 
 
-def expand_node(grid, node, visited, unexplored):
+def expand_node(grid, node, goal, heuristic, visited, unexplored, greedy):
     """
         Given a node, add its valid neighboring nodes to the unexplored queue.
         Nodes are valid if:
@@ -68,7 +82,11 @@ def expand_node(grid, node, visited, unexplored):
 
     for n in node.get_neighbors(grid):
         if not in_visited(n, visited) and not in_unexplored(n, unexplored):
-            unexplored.put(Node(n, node))
+            temp_node = Node(n, node, step_cost(grid, n), heuristic(n, goal))
+            if greedy:
+                unexplored.put((temp_node.g, temp_node))
+            else:
+                unexplored.put((temp_node.f, temp_node))
 
 
 def get_user_coords(grid, text):
@@ -90,8 +108,7 @@ def get_user_coords(grid, text):
 
 
 def main():
-    # grid = g.read_grid('grid.txt')
-    grid = g.make_grid(10, 10)
+    grid = g.read_grid('grid.txt')
 
     # Print grid with a space between columns and a newline between rows
     print('\n'.join(' '.join([str(col) for col in row]) for row in grid))
@@ -100,17 +117,7 @@ def main():
     start = get_user_coords(grid, 'start')
     end = get_user_coords(grid, 'goal')
 
-    # Prompt user to choose breadth-first or depth-first search
-    while True:
-        print('Choose breadth-first (0) or depth-first (1) search:', end=' ')
-        try:
-            # Default to breadth-first unless 1 entered
-            breadth = int(input()) != 1
-            break
-        except ValueError:
-            print('Invalid selection. Please enter 0 or 1')
-
-    path = uninformed_search(grid, start, end, breadth)
+    path = informed_search(grid, start, end)
     fname = 'path.txt'
 
     if path is None:
