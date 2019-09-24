@@ -19,5 +19,5 @@ class Node:
         # First col nodes have no 'left' neighbor
         left = [self.value[0], self.value[1] - 1] if self.value[1] > 0 else None
 
-        # Return neighboring nodes which have value 0 in grid
-        return [coord for coord in [up, right, down, left] if coord is not None and grid[coord[0]][coord[1]] == 0]
+        # Return neighboring nodes which have non-zero value in grid
+        return [coord for coord in [up, right, down, left] if coord is not None and grid[coord[0]][coord[1]] != 0]
