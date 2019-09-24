@@ -2,9 +2,12 @@
 
 
 class Node:
-    def __init__(self, value, parent):
+    def __init__(self, value, parent, g, h):
         self.value = value
         self.parent = parent
+        self.g = g
+        self.h = h
+        self.f = g + h
 
     def get_neighbors(self, grid):
         # First row nodes have no 'up' neighbor
