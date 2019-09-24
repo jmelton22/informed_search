@@ -8,7 +8,7 @@ class Node:
         self.g = g
         self.h = h
         self.f = g + h
-        self.priority = self.g if greedy else self.f
+        self.priority = self.h if greedy else self.f
 
     def __lt__(self, other):
         return self.priority < other.priority

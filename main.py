@@ -13,11 +13,12 @@ def informed_search(grid, start, goal, greedy=True, manhattan=True):
     visited, path = [], []
     unexplored = PriorityQueue()
     heuristic = manhattan_distance if manhattan else euclidean_distance
-    print()
+    print('\nSearch algorithm:', end=' ')
+    print('Greedy search') if greedy else print('A*')
     print('Heuristic function:', heuristic.__name__)
 
     # TODO: Update g value with correct path_cost function
-    start_node = Node(start, '', step_cost(grid, start), heuristic(start, goal), greedy)
+    start_node = Node(start, '', 0, heuristic(start, goal), greedy)
 
     return search(grid, start_node, goal, heuristic, unexplored, visited, greedy, path)
 
@@ -89,7 +90,7 @@ def expand_node(grid, node, goal, heuristic, visited, unexplored, greedy):
     # TODO: Update choosing when new nodes are added to the queue
     for n in node.get_neighbors(grid):
         if not in_visited(n, visited) and not in_unexplored(n, unexplored):
-            unexplored.put(Node(n, node, step_cost(grid, n), heuristic(n, goal), greedy))
+            unexplored.put(Node(n, node, node.g + step_cost(grid, n), heuristic(n, goal), greedy))
 
 
 def get_user_coords(grid, text):
@@ -118,7 +119,7 @@ def main():
     start = get_user_coords(grid, 'start')
     end = get_user_coords(grid, 'goal')
 
-    path, num_states = informed_search(grid, start, end, greedy=True)
+    path, num_states = informed_search(grid, start, end, greedy=False)
     print('Number of nodes expanded:', num_states)
     print('Path:', path[::-1])
     print()
