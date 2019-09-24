@@ -40,7 +40,7 @@ def search(grid, node, goal, heuristic, unexplored, visited, greedy, path):
             return None
         else:
             # Search through next node in queue
-            return search(grid, unexplored.get(), goal, heuristic, unexplored, visited, greedy, path)
+            return search(grid, unexplored.get()[1], goal, heuristic, unexplored, visited, greedy, path)
 
 
 def step_cost(grid, pt):
@@ -71,12 +71,12 @@ def expand_node(grid, node, goal, heuristic, visited, unexplored, greedy):
     """
         Given a node, add its valid neighboring nodes to the unexplored queue.
         Nodes are valid if:
-            - their value in the grid is 0 and
+            - their value in the grid is non-zero and
             - they have not already been visited and
             - they are not already in the queue
     """
     def in_unexplored(coord, q):
-        return coord in [x.value for x in list(q.queue)]
+        return coord in [x[1].value for x in list(q.queue)]
 
     def in_visited(coord, l):
         return coord in [x.value for x in l]
@@ -85,10 +85,8 @@ def expand_node(grid, node, goal, heuristic, visited, unexplored, greedy):
     for n in node.get_neighbors(grid):
         if not in_visited(n, visited) and not in_unexplored(n, unexplored):
             temp_node = Node(n, node, step_cost(grid, n), heuristic(n, goal))
-            if greedy:
-                unexplored.put((temp_node.g, temp_node))
-            else:
-                unexplored.put((temp_node.f, temp_node))
+            queue_tuple = (temp_node.g, temp_node) if greedy else (temp_node.f, temp_node)
+            unexplored.put(queue_tuple)
 
 
 def get_user_coords(grid, text):
@@ -103,7 +101,7 @@ def get_user_coords(grid, text):
             print('Non-numeric coordinate entered')
             continue
 
-        if grid[coord[0]][coord[1]] != 0:
+        if grid[coord[0]][coord[1]] == 0:
             print('Invalid coordinate on grid')
         else:
             return coord
