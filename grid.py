@@ -12,6 +12,10 @@ def read_grid(fname):
         return [[int(x) for x in l.split()] for l in f.readlines()]
 
 
+def print_grid(grid):
+    print('\n'.join(' '.join([str(col) for col in row]) for row in grid))
+
+
 def output_grid(fname, grid, start, goal, path):
     # Mark start and goal pts
     grid[start[0]][start[1]] = 'S'
@@ -21,6 +25,8 @@ def output_grid(fname, grid, start, goal, path):
     for i, p in enumerate(path):
         if 0 < i < len(path) - 1:
             grid[p[0]][p[1]] = '*'
+
+    print_grid(grid)
 
     # Write grid to file: add space between columns and newline between rows
     with open(fname, 'w') as f:

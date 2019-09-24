@@ -13,6 +13,7 @@ def informed_search(grid, start, goal, greedy=True, manhattan=True):
     visited, path = [], []
     unexplored = PriorityQueue()
     heuristic = manhattan_distance if manhattan else euclidean_distance
+    print('Heuristic function:', heuristic.__name__)
 
     start_node = Node(start, '', step_cost(grid, start), heuristic(start, goal))
 
@@ -80,6 +81,7 @@ def expand_node(grid, node, goal, heuristic, visited, unexplored, greedy):
     def in_visited(coord, l):
         return coord in [x.value for x in l]
 
+    # TODO: Update choosing when new nodes are added to the queue
     for n in node.get_neighbors(grid):
         if not in_visited(n, visited) and not in_unexplored(n, unexplored):
             temp_node = Node(n, node, step_cost(grid, n), heuristic(n, goal))
@@ -109,9 +111,7 @@ def get_user_coords(grid, text):
 
 def main():
     grid = g.read_grid('grid.txt')
-
-    # Print grid with a space between columns and a newline between rows
-    print('\n'.join(' '.join([str(col) for col in row]) for row in grid))
+    g.print_grid(grid)  # Print formatted grid
     print()
 
     start = get_user_coords(grid, 'start')
