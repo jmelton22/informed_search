@@ -2,12 +2,16 @@
 
 
 class Node:
-    def __init__(self, value, parent, g, h):
+    def __init__(self, value, parent, g, h, greedy):
         self.value = value
         self.parent = parent
         self.g = g
         self.h = h
         self.f = g + h
+        self.priority = self.g if greedy else self.f
+
+    def __lt__(self, other):
+        return self.priority < other.priority
 
     def get_neighbors(self, grid):
         # First row nodes have no 'up' neighbor
