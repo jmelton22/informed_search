@@ -63,7 +63,7 @@ def set_path(node, path):
         Recursive function to determine the path from the goal node to starting node
         by traversing the parent nodes until reaching the start node.
     """
-    path.append(node.value)
+    path.append((node.g, node.value))
     if node.parent == '':
         return path
     else:
@@ -79,15 +79,12 @@ def expand_node(grid, node, goal, heuristic, visited, unexplored, greedy):
             - they are not already in the queue
     """
     def in_unexplored(coord, q):
-        for x in list(q.queue):
-            if coord == x.value and step_cost(grid, coord) >= x.priority:
-                return True
-        return False
+        return coord in [x.value for x in list(q.queue)]
 
     def in_visited(coord, l):
         return coord in [x.value for x in l]
 
-    # TODO: Update choosing when new nodes are added to the queue
+    # TODO: Update choosing when new nodes are added to the queue (remove duplicate nodes with higher priority)
     for n in node.get_neighbors(grid):
         if not in_visited(n, visited) and not in_unexplored(n, unexplored):
             unexplored.put(Node(n, node, node.g + step_cost(grid, n), heuristic(n, goal), greedy))
@@ -121,7 +118,8 @@ def main():
 
     path, num_states = informed_search(grid, start, end, greedy=False)
     print('Number of nodes expanded:', num_states)
-    print('Path:', path[::-1])
+    print('Path:')
+    print('\n'.join('{} {}'.format(cost, coord) for cost, coord in path[::-1]))
     print()
 
     fname = 'path.txt'
@@ -129,7 +127,7 @@ def main():
     if path is None:
         print('No path found.')
     else:
-        g.output_grid(fname, grid, start, end, path)
+        g.output_grid(fname, grid, start, end, [x[1] for x in path])
 
 
 if __name__ == '__main__':
