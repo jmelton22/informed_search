@@ -4,6 +4,7 @@ from queue import PriorityQueue
 from node import Node
 import grid as g
 import math
+from random import choice
 
 
 def informed_search(grid, start, goal, greedy=True, manhattan=True):
@@ -40,7 +41,7 @@ def search(grid, node, goal, heuristic, unexplored, visited, greedy, path):
         expand_node(grid, node, goal, heuristic, visited, unexplored, greedy)
 
         if unexplored.empty():
-            return None
+            return None, len(visited)
         else:
             # Search through next node in queue
             return search(grid, unexplored.get(), goal, heuristic, unexplored, visited, greedy, path)
@@ -126,17 +127,19 @@ def main():
     start = get_user_coords(grid, 'start')
     end = get_user_coords(grid, 'goal')
 
-    path, num_states = informed_search(grid, start, end, greedy=False)
+    path, num_states = informed_search(grid, start, end,
+                                       greedy=choice([True, False]),
+                                       manhattan=choice([True, False]))
     print('Number of nodes expanded:', num_states)
     print('Path:')
-    print('\n'.join('{:02d} {}'.format(cost, coord) for cost, coord in path[::-1]))
-    print()
 
     fname = 'path.txt'
 
     if path is None:
         print('No path found.')
     else:
+        print('\n'.join('\t{:02d} - {}'.format(cost, coord) for cost, coord in path[::-1]))
+        print()
         g.output_grid(fname, grid, start, end, [x[1] for x in path])
 
 
