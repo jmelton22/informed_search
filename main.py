@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-from queue import PriorityQueue
+import heapq
 from node import Node
 import grid as g
 import math
@@ -11,8 +11,7 @@ def informed_search(grid, start, goal, greedy=True, manhattan=True):
     """
         Handles initialization of data structures for grid search.
     """
-    visited, path = [], []
-    unexplored = PriorityQueue()
+    visited, unexplored, path = [], [], []
     heuristic = manhattan_distance if manhattan else euclidean_distance
 
     print('\nSearch algorithm:', end=' ')
@@ -26,7 +25,7 @@ def informed_search(grid, start, goal, greedy=True, manhattan=True):
 
 def search(grid, node, goal, heuristic, unexplored, visited, greedy, path):
     """
-        Recursive uninformed search. Exits when goal node has been reached or
+        Recursive informed search. Exits when goal node has been reached or
         when queue of unexplored nodes is empty.
 
     :return: if goal node is reached, return list of nodes back to the starting node.
@@ -40,11 +39,11 @@ def search(grid, node, goal, heuristic, unexplored, visited, greedy, path):
         # Add valid neighboring nodes to unexplored queue
         expand_node(grid, node, goal, heuristic, visited, unexplored, greedy)
 
-        if unexplored.empty():
+        if not unexplored:
             return None, len(visited)
         else:
             # Search through next node in queue
-            return search(grid, unexplored.get(), goal, heuristic, unexplored, visited, greedy, path)
+            return search(grid, heapq.heappop(unexplored), goal, heuristic, unexplored, visited, greedy, path)
 
 
 def step_cost(grid, pt):
@@ -80,25 +79,25 @@ def expand_node(grid, node, goal, heuristic, visited, unexplored, greedy):
             - they are not already in the queue
     """
     def in_unexplored(coord, q):
-        return coord in [x.value for x in list(q.queue)]
+        return coord in [x.value for x in q]
 
     def in_visited(coord, l):
         return coord in [x.value for x in l]
 
-    # TODO: Update choosing when new nodes are added to the queue (remove duplicate nodes with higher priority)
     for n in node.get_neighbors(grid):
         path_cost = node.g + step_cost(grid, n)
         temp_node = Node(n, node, path_cost, heuristic(n, goal), greedy)
 
+        # If a grid value is already in queue, but has higher priority
+        # Remove that node and add new node (with lower priority) to queue
         if in_unexplored(n, unexplored):
-            for duplicate in [x for x in list(unexplored.queue) if x.value == n]:
+            for duplicate in [x for x in unexplored if x.value == n]:
                 if duplicate.priority > temp_node.priority:
-                    # Remove duplicate nodes with higher priority
-                    # Add new node to queue
-                    pass
-
-        if not in_visited(n, visited) and not in_unexplored(n, unexplored):
-            unexplored.put(temp_node)
+                    unexplored.remove(duplicate)
+                    heapq.heappush(unexplored, temp_node)
+                    heapq.heapify(unexplored)
+        elif not in_visited(n, visited):
+            heapq.heappush(unexplored, temp_node)
 
 
 def get_user_coords(grid, text):
