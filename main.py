@@ -106,8 +106,7 @@ def get_user_coords(grid, text):
     """
     while True:
         try:
-            print('Enter a {} coordinate (r, c):'.format(text), end=' ')
-            coord = [int(x) for x in input().split(',')]
+            coord = [int(x) for x in input('Enter a {} coordinate (r, c):'.format(text)).split(',')]
         except ValueError:
             print('Non-numeric coordinate entered')
             continue
