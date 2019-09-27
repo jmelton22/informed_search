@@ -27,7 +27,7 @@ def search(grid, node, goal, heuristic, unexplored, visited, greedy, path):
         Recursive search. Exits when goal node has been reached or
         when queue of unexplored nodes is empty.
 
-    :return: if goal node is reached, return a list of tuples with coordinate sequence and path cost
+    :return: if goal node is reached, return a list of tuples with (coordinates, path cost)
                 back to the starting node and the number of nodes visited in search.
              if queue is empty without reaching goal node, return None and the number of nodes visited in search.
     """
@@ -120,8 +120,8 @@ def get_user_coords(grid, text):
 
 
 def main():
-    # grid = g.read_grid('grid.txt')
-    grid = g.make_grid(20, 20)
+    grid = g.read_grid('grid.txt')
+    # grid = g.make_grid(20, 20)
     g.print_grid(grid)
     print()
 
@@ -143,9 +143,9 @@ def main():
         print('Total cost:', path[0][1])
         print()
         g.output_grid(fname, grid, start, end, [x[0] for x in path])
-        # print()
-        # print('Path: coordinate - cost')
-        # print('\n'.join('\t{} - {:02d}'.format(coord, cost) for coord, cost in path[::-1]))
+        print()
+        print('Path: coordinate - cost')
+        print('\n'.join('\t{} - {:02d}'.format(coord, cost) for coord, cost in path[::-1]))
 
 
 if __name__ == '__main__':
