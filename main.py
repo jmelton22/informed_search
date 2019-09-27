@@ -14,8 +14,7 @@ def informed_search(grid, start, goal, greedy=True, manhattan=True):
     visited, unexplored, path = [], [], []
     heuristic = manhattan_distance if manhattan else euclidean_distance
 
-    print('\nSearch algorithm:', end=' ')
-    print('Greedy search') if greedy else print('A*')
+    print('Search algorithm:', 'Greedy search' if greedy else 'A*')
     print('Heuristic function:', heuristic.__name__)
 
     start_node = Node(start, '', 0, heuristic(start, goal), greedy)
@@ -25,7 +24,7 @@ def informed_search(grid, start, goal, greedy=True, manhattan=True):
 
 def search(grid, node, goal, heuristic, unexplored, visited, greedy, path):
     """
-        Recursive informed search. Exits when goal node has been reached or
+        Recursive search. Exits when goal node has been reached or
         when queue of unexplored nodes is empty.
 
     :return: if goal node is reached, return list of nodes back to the starting node.
@@ -51,11 +50,11 @@ def step_cost(grid, pt):
 
 
 def manhattan_distance(pt1, pt2):
-    return sum([abs(x - y) for x, y in zip(pt1, pt2)])
+    return sum([abs(d1 - d2) for d1, d2 in zip(pt1, pt2)])
 
 
 def euclidean_distance(pt1, pt2):
-    return math.sqrt(sum([(x - y) ** 2 for x, y in zip(pt1, pt2)]))
+    return math.sqrt(sum([(d1 - d2) ** 2 for d1, d2 in zip(pt1, pt2)]))
 
 
 def set_path(node, path):
@@ -72,11 +71,14 @@ def set_path(node, path):
 
 def expand_node(grid, node, goal, heuristic, visited, unexplored, greedy):
     """
-        Given a node, add its valid neighboring nodes to the unexplored queue.
+        Given a node, push its valid neighboring nodes to the unexplored queue.
         Nodes are valid if:
-            - their value in the grid is non-zero and
-            - they have not already been visited and
-            - they are not already in the queue
+            - They have a non-zero grid value, have not already been visited, and are not already in the queue
+
+            (Only relevant for A*)
+            - Or they have the same coordinates as a node in queue but with a lower path cost
+            - In which case, the node with higher path cost is removed from queue and
+            the new node is pushed to the queue
     """
     def in_unexplored(coord, q):
         return coord in [x.value for x in q]
@@ -85,11 +87,10 @@ def expand_node(grid, node, goal, heuristic, visited, unexplored, greedy):
         return coord in [x.value for x in l]
 
     for n in node.get_neighbors(grid):
+        # Path cost of neighbor is the path cost to the parent + step cost to new coord
         path_cost = node.g + step_cost(grid, n)
         temp_node = Node(n, node, path_cost, heuristic(n, goal), greedy)
 
-        # If a grid value is already in queue, but has higher priority
-        # Remove that node and add new node (with lower priority) to queue
         if in_unexplored(n, unexplored):
             for duplicate in [x for x in unexplored if x.value == n]:
                 if duplicate.priority > temp_node.priority:
@@ -111,25 +112,27 @@ def get_user_coords(grid, text):
             print('Non-numeric coordinate entered')
             continue
 
-        if grid[coord[0]][coord[1]] == 0:
+        if step_cost(grid, coord) == 0:
             print('Invalid coordinate on grid')
         else:
             return coord
 
 
 def main():
-    grid = g.read_grid('grid.txt')
+    # grid = g.read_grid('grid.txt')
+    grid = g.make_grid(20, 20)
     g.print_grid(grid)
     print()
 
     start = get_user_coords(grid, 'start')
     end = get_user_coords(grid, 'goal')
+    print()
 
     path, num_states = informed_search(grid, start, end,
                                        greedy=choice([True, False]),
                                        manhattan=choice([True, False]))
     print('Number of nodes expanded:', num_states)
-    print('Path:')
+    print('Path: cost - coordinate')
 
     fname = 'path.txt'
 

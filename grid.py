@@ -4,7 +4,7 @@ from random import choices
 
 
 def make_grid(nrow, ncol):
-    return [choices([0, 1], weights=[0.65, 0.35], k=ncol) for _ in range(nrow)]
+    return [choices(range(0, 6), k=ncol) for _ in range(nrow)]
 
 
 def read_grid(fname):
