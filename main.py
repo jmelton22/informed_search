@@ -27,8 +27,9 @@ def search(grid, node, goal, heuristic, unexplored, visited, greedy, path):
         Recursive search. Exits when goal node has been reached or
         when queue of unexplored nodes is empty.
 
-    :return: if goal node is reached, return list of nodes back to the starting node.
-             if queue is empty without reaching goal node, return None.
+    :return: if goal node is reached, return a list of tuples with coordinate sequence and path cost
+                back to the starting node and the number of nodes visited in search.
+             if queue is empty without reaching goal node, return None and the number of nodes visited in search.
     """
     visited.append(node)
 
@@ -62,7 +63,7 @@ def set_path(node, path):
         Recursive function to determine the path from the goal node to starting node
         by traversing the parent nodes until reaching the start node.
     """
-    path.append((node.g, node.value))
+    path.append((node.value, node.g))
     if node.parent == '':
         return path
     else:
@@ -107,7 +108,7 @@ def get_user_coords(grid, text):
     """
     while True:
         try:
-            coord = [int(x) for x in input('Enter a {} coordinate (r, c):'.format(text)).split(',')]
+            coord = [int(x) for x in input('Enter a {} coordinate (r, c): '.format(text)).split(',')]
         except ValueError:
             print('Non-numeric coordinate entered')
             continue
@@ -132,16 +133,19 @@ def main():
                                        greedy=choice([True, False]),
                                        manhattan=choice([True, False]))
     print('Number of nodes expanded:', num_states)
-    print('Path: cost - coordinate')
 
     fname = 'path.txt'
 
     if path is None:
         print('No path found.')
     else:
-        print('\n'.join('\t{:02d} - {}'.format(cost, coord) for cost, coord in path[::-1]))
+        print('Path length: {} nodes'.format(len(path)))
+        print('Total cost:', path[0][1])
         print()
-        g.output_grid(fname, grid, start, end, [x[1] for x in path])
+        g.output_grid(fname, grid, start, end, [x[0] for x in path])
+        # print()
+        # print('Path: coordinate - cost')
+        # print('\n'.join('\t{} - {:02d}'.format(coord, cost) for coord, cost in path[::-1]))
 
 
 if __name__ == '__main__':
