@@ -93,11 +93,9 @@ def expand_node(grid, node, goal, heuristic, visited, unexplored, greedy):
         temp_node = Node(n, node, path_cost, heuristic(n, goal), greedy)
 
         if in_unexplored(n, unexplored):
-            for duplicate in [x for x in unexplored if x.value == n]:
-                if duplicate.priority > temp_node.priority:
-                    unexplored.remove(duplicate)
-                    heapq.heappush(unexplored, temp_node)
-                    heapq.heapify(unexplored)
+            for duplicate in [x for x in unexplored if x.value == n and x.priority > temp_node.priority]:
+                unexplored.remove(duplicate)
+                heapq.heappush(unexplored, temp_node)
         elif not in_visited(n, visited):
             heapq.heappush(unexplored, temp_node)
 
