@@ -17,7 +17,7 @@ def informed_search(grid, start, goal, greedy=True, manhattan=True):
     print('Search algorithm:', 'Greedy search' if greedy else 'A*')
     print('Heuristic function:', heuristic.__name__)
 
-    start_node = Node(start, '', 0, heuristic(start, goal), greedy)
+    start_node = Node(start, None, 0, heuristic(start, goal), greedy)
 
     return search(grid, start_node, goal, heuristic, unexplored, visited, greedy, path)
 
@@ -64,7 +64,7 @@ def set_path(node, path):
         by traversing the parent nodes until reaching the start node.
     """
     path.append((node.value, node.g))
-    if node.parent == '':
+    if node.parent is None:
         return path
     else:
         return set_path(node.parent, path)
