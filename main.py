@@ -125,12 +125,14 @@ def main():
 
     start = get_user_coords(grid, 'start')
     end = get_user_coords(grid, 'goal')
-    print()
+    print('-' * 15)
 
+    # Randomly toggles search and heuristic methods
     path, num_states = informed_search(grid, start, end,
                                        greedy=choice([True, False]),
                                        manhattan=choice([True, False]))
     print('Number of nodes expanded:', num_states)
+    print('-' * 15)
 
     fname = 'path.txt'
 
